@@ -1,0 +1,38 @@
+# Environments
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+
+# Data (keep raw/processed out of git, only track small samples if needed)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Notebooks checkpoints
+.ipynb_checkpoints/
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Environment variables / secrets
+.env
+*.pem
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# Docker
+*.log
+
+# Model artifacts (large binaries — track via MLflow/DVC, not git)
+*.pkl
+*.joblib
+*.h5

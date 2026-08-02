@@ -1,0 +1,40 @@
+# --- Core data handling ---
+pandas
+numpy
+sqlalchemy
+psycopg2-binary
+duckdb
+
+# --- EDA / visualization ---
+matplotlib
+seaborn
+plotly
+
+# --- Modeling ---
+scikit-learn
+xgboost
+prophet
+statsmodels
+econml
+scipy
+
+# --- Explainability ---
+shap
+
+# --- Experiment tracking ---
+mlflow
+
+# --- API ---
+fastapi
+uvicorn[standard]
+pydantic
+
+# --- Dashboard ---
+streamlit
+
+# --- Testing ---
+pytest
+
+# --- Utilities ---
+python-dotenv
+jupyter
