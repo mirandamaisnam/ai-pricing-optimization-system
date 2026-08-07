@@ -50,3 +50,30 @@ def missing_value_report(df):
     )
 
     return missing
+
+def profile_dataset(df, dataset_name):
+
+    print("=" * 70)
+    print(f"Dataset: {dataset_name}")
+    print("=" * 70)
+
+    print(f"Rows: {df.shape[0]}")
+    print(f"Columns: {df.shape[1]}")
+
+    print("\nColumn Names:")
+    print(df.columns.tolist())
+
+    print("\nData Types:")
+    print(df.dtypes)
+
+    print("\nMissing Values:")
+    print(df.isnull().sum())
+
+    print("\nDuplicate Rows:")
+    print(df.duplicated().sum())
+
+    print("\nMemory Usage:")
+    print(f"{df.memory_usage(deep=True).sum()/1024:.2f} KB")
+
+    print("\nFirst Five Rows:")
+    print(df.head())
