@@ -1,36 +1,44 @@
 # AI-Powered Pricing Optimization & Revenue Forecasting System
 
-An end-to-end pricing analytics pipeline built on the Olist Brazilian e-commerce dataset. It forecasts near-term demand, estimates how price-sensitive different product categories actually are, and simulates expected revenue across alternative pricing scenarios — all explorable through an interactive Streamlit dashboard.
+ A data science project that combines demand forecasting, price elasticity analysis, and scenario-based price optimization to support data-driven pricing decisions in e-commerce.
 
 ---
 
 ##  Business Problem
 
-E-commerce businesses have to balance three things at once: **price**, **demand**, and **revenue**. Set prices too high and volume drops; set them too low and margin is left on the table — and getting this right requires knowing how demand actually responds to price, which static pricing ignores entirely.
+E-commerce businesses need to balance **price, demand, and revenue** when making pricing decisions.
 
-This project works through three connected questions using historical transaction data:
+This project focuses on three questions:
 
-1. How much demand can be expected in the near term?
-2. How sensitive is that demand to price, and does this differ by category?
-3. Which pricing scenarios could plausibly improve expected revenue?
+1. **How much demand can be expected in the near term?**
+2. **How does demand respond to changes in price?**
+3. **Which pricing scenarios could improve expected revenue?**
 
 ---
 
 ##  Project Objective
 
-- Forecast near-term aggregate demand and evaluate it on a genuine holdout period
-- Estimate price elasticity of demand using panel data methods, not a naive correlation
-- Quantify price sensitivity separately by product category, rather than assuming one number fits the catalog
-- Translate elasticity estimates into revenue scenarios across a bounded, realistic price range
-- Flag which scenarios are statistically reliable and which aren't, as decision support — not a guaranteed answer
+Build an end-to-end pricing analytics system that:
+
+- Forecasts near-term demand
+- Estimates price elasticity
+- Identifies category-level price sensitivity
+- Evaluates pricing scenarios based on expected revenue
+- Presents results through an interactive Streamlit dashboard
 
 ---
 
 ##  Dataset
 
-The [Olist Brazilian E-Commerce dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) is the only data source used in this project. The pipeline draws on the orders, order items, products, sellers, customers, and product-category-translation tables to build a single order-item-level analytical dataset.
+**Source:** Brazilian E-Commerce Public Dataset by Olist
 
-After cleaning and merging, that dataset contains **112,650 order items across 98,666 unique orders**, spanning September 2016 to September 2018.
+- **112,650** order-item records
+- **98,666** unique orders
+- **9** related datasets joined for analysis
+- Covers approximately **September 2016 – September 2018**
+- Includes orders, products, sellers, customers, payments, reviews, and related attributes
+
+The dataset is used to analyze historical demand, pricing behavior, and revenue patterns.
 
 ---
 
@@ -50,24 +58,19 @@ After cleaning and merging, that dataset contains **112,650 order items across 9
 
 ##  Key Results
 
-## 1. Demand Forecasting
+### 1. Demand Forecasting
 
-Order-item transactions are aggregated into a daily demand series and forecast using two approaches, evaluated on a **chronological 30-day holdout** (never seen during training):
+- Compared **Prophet** and **XGBoost** using a chronological **30-day holdout**.
+- **XGBoost** was selected based on the lowest RMSE.
+- **Actual demand:** 5,945 units
+- **Forecasted demand:** 7,852 units
+- **Forecast vs. actual difference:** +32.1%
+- **MAE:** 100.46
+- **WAPE:** 50.69%
 
-- **Prophet**, with weekly seasonality
-- **XGBoost**, using lag and rolling-window features, forecast recursively so each day's own prediction — not the real future value — feeds the next day's lag
+> The +32.1% figure represents the difference between total forecasted and actual demand during the holdout period. It is **not forecast accuracy**.
 
-| Metric / Result | Value |
-|---|---:|
-| Holdout period | 30 days |
-| Actual demand (total) | 5,945 |
-| Forecasted demand (total) | 7,852 |
-| Forecast difference | +32.1% |
-| Selected model | XGBoost |
-
-XGBoost was selected on lowest RMSE against Prophet and is the model used in the dashboard. The **+32.1% figure is the difference between total forecasted and total actual demand summed over the 30-day holdout** — it is not a forecast accuracy score, and the notebook's actual per-day error metrics (MAE, RMSE, WAPE, sMAPE) are what characterize how close the day-by-day forecast tracked reality.
-
-## 2. Price Elasticity Analysis
+### 2. Price Elasticity Analysis
 
 Price elasticity is estimated on a **product-category-month panel** — item-level transactions aggregated to categories, using only months a product actually sold, with no zero-demand months invented. Only products with enough repeat sales and enough price variation are kept for estimation, following a two-way fixed-effects log-log model:
 
@@ -88,7 +91,7 @@ fit with clustered standard errors at the product level.
 
 The estimate points to an inverse price-demand relationship close to unit-elastic in the analyzed sample. **This is an observational estimate, not a causal one** — Olist transaction data was not generated by a pricing experiment, and while product and time fixed effects control for a lot, they don't rule out every confounder (seasonality, promotions, seller behavior).
 
-## 3. Category-Level Price Sensitivity
+### 3. Category-Level Price Sensitivity
 
 16 product categories had enough observations and products to estimate individually.
 
@@ -102,7 +105,7 @@ The estimate points to an inverse price-demand relationship close to unit-elasti
 
 Across all 16: **4 reliable, 7 moderate, 4 not detected, 1 positive/likely confounded** (a positive coefficient contradicts standard downward-sloping demand and is flagged as probable confounding rather than reported as "low sensitivity"). Not every category has a usable elasticity estimate — that's a real finding of the analysis, not a gap in it, and it's exactly why category-level granularity matters: a single catalog-wide elasticity number would have hidden this variation entirely.
 
-## 4. Price Optimization
+### 4. Price Optimization
 
 Optimization is done at the **category level**, since category is the finest grain at which Phase 6 produced reliable elasticity — no individual product had enough repeat, price-varying sales to support its own estimate.
 
@@ -129,7 +132,7 @@ Example — `relogios_presentes`, the only category that clears every reliabilit
 
 Across all 11 categories eligible for optimization, **10 show their recommended price direction reversing somewhere within the elasticity's own confidence interval** — meaning most computed scenarios are not stable recommendations. Only `relogios_presentes` survives the combined check (Phase 6 reliability, CI-direction stability, and no extrapolation beyond the observed price range). These are scenario-based pricing recommendations derived from an observational elasticity estimate, not guaranteed optimal prices.
 
-## 5. Business Interpretation
+### 5. Business Interpretation
 
 - Demand forecasting gives a near-term expectation of order volume, evaluated against a real holdout rather than in-sample fit.
 - Price elasticity quantifies how demand has historically moved with price — as an association, not a guarantee of what will happen next.
@@ -167,15 +170,22 @@ Across all 11 categories eligible for optimization, **10 show their recommended 
 | Dashboard | Streamlit |
 
 ---
-
-##  Project Structure
+## 📁 Project Structure
 
 ```text
 ai-pricing-optimization-system/
+├── config/                         # Project configuration
+├── dashboard/
+│   └── app.py                      # Streamlit dashboard
 ├── data/
-│   ├── raw/                 # raw Olist CSVs (gitignored)
-│   └── processed/            # notebook outputs read by the dashboard (gitignored)
-├── models/                   # saved model artifacts (gitignored)
+│   ├── external/                   # External data
+│   ├── raw/                        # Raw Olist datasets
+│   └── processed/                  # Processed datasets and analysis outputs
+├── images/
+│   └── dashboard_overview.png      # Dashboard screenshot
+├── infra/
+│   └── docker-compose.yml
+├── models/                         # Saved model artifacts
 ├── notebooks/
 │   ├── 01_data_understanding.ipynb
 │   ├── 02_data_cleaning.ipynb
@@ -184,15 +194,22 @@ ai-pricing-optimization-system/
 │   ├── 05_demand_forecasting.ipynb
 │   ├── 06_price_elasticity.ipynb
 │   └── 07_price_optimization.ipynb
-├── dashboard/
-│   └── app.py
+├── reports/
+│   ├── figures/
+│   └── outputs/
 ├── src/
-│   ├── data/                 # load_data.py, merge_data.py
+│   ├── api/
+│   ├── data/
 │   ├── features/
 │   ├── models/
-│   ├── api/
-│   └── monitoring/
-├── infra/
+│   ├── monitoring/
+│   ├── utils/
+│   └── visualization/
+├── tests/
+├── .env.example
+├── .gitignore
+├── main.py
+├── Makefile
 ├── requirements.txt
 └── README.md
 ```
